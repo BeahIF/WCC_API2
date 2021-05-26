@@ -18,7 +18,7 @@ const columns ={
     }
 };
 const sequelizeOptions = {
-    freezeTableName=true,
+    freezeTableName:true,
     tableName:'agendamentos',
     timestamps:true,
     createdAt:'data_criacao',
