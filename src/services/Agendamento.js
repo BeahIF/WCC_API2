@@ -1,4 +1,6 @@
 const sequelizeAgendamento = require('../models/SequelizeAgendamento')
+const moment = require('moment');
+
 class Agendamento {
     constructor({id,nome_cliente,nome_servico,status,data_agendamento, data_criacao,data_atualizacao}){
         this.id=id;
@@ -10,6 +12,7 @@ class Agendamento {
         this.data_atualizacao=data_atualizacao;
     };
     async criar(){
+        this.validar()
         const result = await sequelizeAgendamento.adicionar({
             nome_cliente: this.nome_cliente,
             nome_servico:this.nome_servico,
@@ -32,12 +35,23 @@ class Agendamento {
     }
     validar(){
         const camposObrigatorios = ['nome_cliente','nome_servico','status','data_agendamento']
+        const dataHoje=    moment().format('YYYY-MM-DD');
+
         camposObrigatorios.forEach((campo)=>{
             const valor = this[campo];
+            
             if(typeof valor !== 'string' || valor.length === 0){
                 throw new Error("Campo inválido")
             }
+            if(campo == "data_agendamento"){
+                if(!moment(valor).isSameOrAfter(dataHoje)){
+                    throw new Error('Data inválida!')
+                }
+            }
         })
+    }
+    async remover(){
+        await sequelizeAgendamento.remover(this.id);
     }
 }
 module.exports = Agendamento;
