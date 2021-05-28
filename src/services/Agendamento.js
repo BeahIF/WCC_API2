@@ -33,6 +33,22 @@ class Agendamento {
         this.data_criacao = result.data_criacao;
         this.data_atualizacao = result.data_atualizacao;
     }
+    async atualizar(){
+        await sequelizeAgendamento.buscarPorPK(this.id);
+        const camposAtualizaveis =['nome_cliente','nome_servico','status','data_agendamento']
+        const dadosAtualizar = {};
+        camposAtualizaveis.forEach((campo)=>{
+            const valor = this[campo];
+            if(typeof valor === 'string' && valor.length > 0){
+                dadosAtualizar[campo]=valor
+            }
+
+        });
+        if(Object.keys(dadosAtualizar).length === 0){
+            throw new Error('Dados não informados')
+        };
+        await sequelizeAgendamento.atualizar(this.id, dadosAtualizar)
+    }
     validar(){
         const camposObrigatorios = ['nome_cliente','nome_servico','status','data_agendamento']
         const dataHoje=    moment().format('YYYY-MM-DD');
