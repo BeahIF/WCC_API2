@@ -1,6 +1,10 @@
-const sequelizeAgendamento = require('../models/SequelizeAgendamento')
+const sequelizeAgendamento = require('../../models/agendamentos/SequelizeAgendamento')
 const moment = require('moment');
-
+const CampoInvalido = require('../../errors/CampoInvalido')
+const NaoEncontrado = require('../../errors/NaoEncontrado')
+const DadosNaoInformados = require('../../errors/DadosNaoInformados');
+const CampoQtdMaxima = require('../../errors/CampoQtdMaxima');
+const CampoQtdMinima = require('../../errors/CampoQtdMinima');
 class Agendamento {
     constructor({id,nome_cliente,nome_servico,status,data_agendamento, data_criacao,data_atualizacao}){
         this.id=id;
@@ -45,7 +49,8 @@ class Agendamento {
 
         });
         if(Object.keys(dadosAtualizar).length === 0){
-            throw new Error('Dados não informados')
+            throw DadosNaoInformados()
+            // throw new Error('Dados não informados')
         };
         await sequelizeAgendamento.atualizar(this.id, dadosAtualizar)
     }
@@ -57,12 +62,24 @@ class Agendamento {
             const valor = this[campo];
             
             if(typeof valor !== 'string' || valor.length === 0){
-                throw new Error("Campo inválido")
+                throw new CampoInvalido(campo);
+                // throw new Error("Campo inválido")
             }
             if(campo == "data_agendamento"){
                 if(!moment(valor).isSameOrAfter(dataHoje)){
                     throw new Error('Data inválida!')
                 }
+                const dataCorreta = moment(moment(valor), "DD/MM/YYYY", true);
+
+                if(!dataCorreta.isValid()){
+                    throw new FormatoInvalido(campo);
+                }
+            }
+            if(valor.length() > 60){
+                throw new CampoQtdMaxima(campo);
+            }
+            if(valor.length() < 8 && (campo !== 'nome_cliente' && campo !== 'nome_servico')){
+                throw new CampoQtdMinima(campo);
             }
         })
     }
