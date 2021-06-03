@@ -3,7 +3,7 @@ const express=require('express');
 const routeAgendamento = require('../api/agendamentos/index');
 const  FormatosValidos = require('../shared/Serializer').FormatosValidos;
 const SerializarErro = require('../shared/Serializer').SerializarErro;
-
+const passport = require('./autenticacao')
 module.exports = () =>{
     const app = express();
     app.use((req,res,next)=>{
